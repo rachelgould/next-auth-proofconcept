@@ -1,6 +1,13 @@
 import Head from 'next/head'
+import { useEffect } from 'react'
 
 const Home = () => (
+
+  // Detect access token in URL
+  useEffect(() => {
+    
+  }, [])
+
   <div className="container">
     <Head>
       <title>Create Next App</title>
