@@ -4,7 +4,11 @@ Used to explore ways to perform OAuth federated sign-in in Next.js using Amazon 
 
 ## Getting Started
 
-First, run the development server:
+Fill in `next.config.js.example` and remove the `.example`. 
+
+Get your JWKS at `https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json`
+
+Run the development server:
 
 ```bash
 npm run dev
