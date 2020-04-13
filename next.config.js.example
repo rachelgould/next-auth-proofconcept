@@ -1,0 +1,11 @@
+module.exports = {
+  env: {
+    POOL_ID: "EDIT_ME",
+    CLIENT_ID: "EDIT_ME",
+    URL: "EDIT_ME",
+    O_AUTH_DOMAIN: "EDIT_ME",
+    O_AUTH_SCOPE: "EDIT_ME",
+    O_AUTH_SIGNIN_REDIRECT: "EDIT_ME",
+    O_AUTH_SIGNOUT_REDIRECT: "EDIT_ME"
+  }
+}

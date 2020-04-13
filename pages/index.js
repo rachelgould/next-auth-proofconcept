@@ -1,5 +1,6 @@
 import Head from 'next/head'
 
+const loginLink = 'https://auth.gamesnightonline.com/login?client_id=19riu4d4pv8euflkqtnnl84o2h&response_type=code&scope=aws.cognito.signin.user.admin&redirect_uri=http://localhost:3000/api/loggedin'
 const Home = () => (
   <div className="container">
     <Head>
@@ -13,10 +14,12 @@ const Home = () => (
       </h1>
 
       <p className="description">
-        Get started by editing <code>pages/index.js</code>
+        Click here to login: <a href={`${process.env.O_AUTH_DOMAIN}/login?client_id=${process.env.CLIENT_ID}&response_type=code&scope=aws.cognito.signin.user.admin&redirect_uri=${process.env.O_AUTH_SIGNIN_REDIRECT}`}>
+          Log in
+        </a>
       </p>
 
-      <div className="grid">
+      {/* <div className="grid">
         <a href="https://nextjs.org/docs" className="card">
           <h3>Documentation &rarr;</h3>
           <p>Find in-depth information about Next.js features and API.</p>
@@ -44,7 +47,7 @@ const Home = () => (
             Instantly deploy your Next.js site to a public URL with ZEIT Now.
           </p>
         </a>
-      </div>
+      </div> */}
     </main>
 
     <footer>
@@ -96,8 +99,7 @@ const Home = () => (
       }
 
       a {
-        color: inherit;
-        text-decoration: none;
+        color: #0070f3;
       }
 
       .title a {
