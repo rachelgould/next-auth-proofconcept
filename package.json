@@ -8,6 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "base64url": "^3.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwk-to-pem": "^2.0.3",
     "next": "9.3.4",
     "react": "16.13.1",
     "react-dom": "16.13.1"
