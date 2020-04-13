@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_ENV=development node index.js",
     "build": "next build",
-    "start": "next start"
+    "start": "node index.js"
   },
   "dependencies": {
     "next": "9.3.4",
+    "next-auth": "^1.12.1",
     "react": "16.13.1",
     "react-dom": "16.13.1"
   }
