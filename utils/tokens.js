@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
+const util = require('util');
+jwt.verify = util.promisify(jwt.verify);
 
-export default function verifySetToken(token) {
+export default async function verifySetToken(token) {
   const [ header, payload, signature ] = token.split('.');
   if (!header || !payload || !signature) {
     return false;
@@ -9,16 +11,10 @@ export default function verifySetToken(token) {
   try {
     const header = decodeTokenHeader(token);
     const jsonWebKey = getJsonWebKeyWithKID(header.kid);
-    verifyJsonWebTokenSignature(token, jsonWebKey, (err, decodedToken) => {
-      if (err) {
-        console.error(err);
-        return false;
-      } else {
-        console.log(decodedToken);
-        const verified = verifyClaims(decodedToken) 
-        
-      }
-    })
+    const decodedToken = await verifyJsonWebTokenSignature(token, jsonWebKey);
+    const verified = verifyClaims(decodedToken)
+    console.log("Decoded token: ", decodedToken);
+    console.log("verified: ", verified);
   } catch (e) {
     console.log("error decoding the token: ", e);
   }
@@ -40,9 +36,9 @@ function getJsonWebKeyWithKID(kid) {
   return null
 }
 
-function verifyJsonWebTokenSignature(token, jsonWebKey, clbk) {
+async function verifyJsonWebTokenSignature(token, jsonWebKey) {
   const pem = jwkToPem(jsonWebKey);
-  jwt.verify(token, pem, {algorithms: ['RS256']}, (err, decodedToken) => clbk(err, decodedToken))
+  return jwt.verify(token, pem, { algorithms: ['RS256'] });
 }
 
 function verifyClaims(token) {
