@@ -1,10 +1,12 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/zeit/next.js/tree/canary/packages/create-next-app).
+# Example Project: Simple User Auth in Next.js Using Cognito & Facebook Login
 
-Used to explore ways to perform OAuth federated sign-in in Next.js using Amazon Cognito service.
+Used to explore ways to perform OAuth federated sign-in in Next.js using Amazon Cognito service. Uses the hosted UI.
 
 ## Getting Started
 
 Fill in `next.config.js.example` and remove the `.example`. 
+
+Make sure that your Cognito OAuth 2.0 settings allow the following scopes: email, openid, profile, aws.cognito.signin.user.admin.
 
 Get your JWKS at `https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json`
 
