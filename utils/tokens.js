@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
-const base64url = require('base64url');
 
-export function verifyToken(token) {
+export default function verifySetToken(token) {
   const [ header, payload, signature ] = token.split('.');
   if (!header || !payload || !signature) {
     return false;
@@ -13,8 +12,11 @@ export function verifyToken(token) {
     verifyJsonWebTokenSignature(token, jsonWebKey, (err, decodedToken) => {
       if (err) {
         console.error(err);
+        return false;
       } else {
         console.log(decodedToken);
+        const verified = verifyClaims(decodedToken) 
+        
       }
     })
   } catch (e) {
@@ -41,4 +43,10 @@ function getJsonWebKeyWithKID(kid) {
 function verifyJsonWebTokenSignature(token, jsonWebKey, clbk) {
   const pem = jwkToPem(jsonWebKey);
   jwt.verify(token, pem, {algorithms: ['RS256']}, (err, decodedToken) => clbk(err, decodedToken))
+}
+
+function verifyClaims(token) {
+  const currUnixTime = Math.round(new Date().getTime()/1000);
+
+  return (token.exp - currUnixTime > 0) && token.aud === process.env.CLIENT_ID && token.iss === `https://cognito-idp.${process.env.REGION_ID}.amazonaws.com/${process.env.POOL_ID}` && token.token_use === 'id';
 }

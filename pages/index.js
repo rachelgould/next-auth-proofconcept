@@ -1,17 +1,17 @@
 import Head from 'next/head'
 import { useEffect } from 'react'
-import { verifyToken } from '../utils/tokens';
+import verifySetToken from '../utils/tokens';
 
 const Home = () => {
 
+  // This should go on whatever page your signin is redirecting to
   useEffect(() => {
     // Check that we're on the client
     if (typeof window !== 'undefined') {
       const tokenParams = new URLSearchParams(window.location.href.split("#")[1]);
-      const accessToken = tokenParams.get("access_token");
-      if (accessToken) {
-        verifyToken(accessToken);
-        // const expiresIn = tokenParams.get("expires_in");
+      const idToken = tokenParams.get("id_token");
+      if (idToken) {
+        verifySetToken(idToken);
       }
     }
   }, [])
@@ -29,7 +29,7 @@ const Home = () => {
         </h1>
 
         <p className="description">
-          Click here to login: <a href={`${process.env.O_AUTH_DOMAIN}/login?client_id=${process.env.CLIENT_ID}&response_type=token&scope=aws.cognito.signin.user.admin&redirect_uri=${process.env.O_AUTH_SIGNIN_REDIRECT}`}>
+          Click here to login: <a href={`${process.env.O_AUTH_DOMAIN}/login?client_id=${process.env.CLIENT_ID}&response_type=token&scope=aws.cognito.signin.user.admin%20profile%20openid%20email&redirect_uri=${process.env.O_AUTH_SIGNIN_REDIRECT}`}>
             Log in
           </a>
         </p>
