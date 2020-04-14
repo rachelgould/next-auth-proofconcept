@@ -3,10 +3,11 @@ module.exports = {
     REGION_ID: "us-west-2",
     POOL_ID: "us-west-2_xxxxxxxx",
     CLIENT_ID: "EDIT_ME",
-    URL: "http://EDIT_ME",
     O_AUTH_DOMAIN: "https://EDIT_ME",
     O_AUTH_SIGNIN_REDIRECT: "http://EDIT_ME",
     O_AUTH_SIGNOUT_REDIRECT: "http://EDIT_ME",
+    CUSTOM_KEY: "Change me to anything",
+    DAYS_REMEMBER_USER: <# days for the cookie to remember a loggedin user>,
     JWKS: {
       keys: [...]
     }
