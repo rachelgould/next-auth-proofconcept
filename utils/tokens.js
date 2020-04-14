@@ -2,8 +2,9 @@ const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem');
 const util = require('util');
 jwt.verify = util.promisify(jwt.verify);
+jwt.sign = util.promisify(jwt.sign);
 
-export default async function verifySetToken(token) {
+export async function verifySetToken(token) {
   const [ header, payload, signature ] = token.split('.');
   if (!header || !payload || !signature) {
     return false;
@@ -12,11 +13,34 @@ export default async function verifySetToken(token) {
     const header = decodeTokenHeader(token);
     const jsonWebKey = getJsonWebKeyWithKID(header.kid);
     const decodedToken = await verifyJsonWebTokenSignature(token, jsonWebKey);
-    const verified = verifyClaims(decodedToken)
-    console.log("Decoded token: ", decodedToken);
-    console.log("verified: ", verified);
+    return verifyClaims(decodedToken) ? decodedToken : false;
   } catch (e) {
     console.log("error decoding the token: ", e);
+    return false;
+  }
+}
+
+export async function transformToClientToken(authenticatedToken) {
+  try {
+    const newToken = {
+      cognitoUser: authenticatedToken['cognito:username'],
+      email: authenticatedToken.email,
+      fName: authenticatedToken['given_name'],
+      lName: authenticatedToken['family_name']
+    };
+    return jwt.sign(newToken, process.env.CUSTOM_KEY);
+  } catch (e) {
+    console.log("error signing the token: ", e);
+    throw e;
+  }
+}
+
+export async function decodeClientToken(token) {
+  try {
+    return jwt.verify(token, process.env.CUSTOM_KEY);
+  } catch (e) {
+    console.log("error decoding the token: ", e);
+    throw e;
   }
 }
 

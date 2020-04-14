@@ -1,19 +1,39 @@
-import Head from 'next/head'
-import { useEffect } from 'react'
-import verifySetToken from '../utils/tokens';
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
+import { parseCookies, setCookie, destroyCookie } from 'nookies';
+import { verifySetToken, transformToClientToken, decodeClientToken } from '../utils/tokens';
 
-const Home = () => {
+const Home = (props) => {
+  const [user, setUser] = useState(props.user);
+  
+  const logout = () => {
+    destroyCookie(null, 'id');
+    setUser(null);
+  }
 
   // This should go on whatever page your signin is redirecting to
   useEffect(() => {
-    // Check that we're on the client
-    if (typeof window !== 'undefined') {
-      const tokenParams = new URLSearchParams(window.location.href.split("#")[1]);
-      const idToken = tokenParams.get("id_token");
-      if (idToken) {
-        verifySetToken(idToken);
+    async function detectNewLogin() {
+      try {
+        if (typeof window !== 'undefined') {
+          const tokenParams = new URLSearchParams(window.location.href.split("#")[1]);
+          const idToken = tokenParams.get("id_token");
+          if (idToken) {
+            const verified = await verifySetToken(idToken);
+            const newToken = await transformToClientToken(verified);
+            setCookie(null, 'id', newToken, {
+              maxAge: process.env.DAYS_REMEMBER_USER * 60 * 60 * 24,
+              path: '/'
+            });
+            const user = await decodeClientToken(newToken);
+            setUser(user);
+          }
+        }
+      } catch (e) {
+        console.log("Error logging in: ", e);
       }
     }
+    detectNewLogin();
   }, [])
 
   return(
@@ -29,21 +49,20 @@ const Home = () => {
         </h1>
 
         <p className="description">
-          Click here to login: <a href={`${process.env.O_AUTH_DOMAIN}/login?client_id=${process.env.CLIENT_ID}&response_type=token&scope=aws.cognito.signin.user.admin%20profile%20openid%20email&redirect_uri=${process.env.O_AUTH_SIGNIN_REDIRECT}`}>
-            Log in
-          </a>
+          {
+            user ?
+            <>
+              {Object.keys(user).map((k) => <>{k}: {user[k]}<br /></>)}
+              <br />
+              Click here to logout: <a onClick={()=> logout()}>Log out</a>
+            </>
+            :
+            <>Click here to login: <a href={`${process.env.O_AUTH_DOMAIN}/login?client_id=${process.env.CLIENT_ID}&response_type=token&scope=aws.cognito.signin.user.admin%20profile%20openid%20email&redirect_uri=${process.env.O_AUTH_SIGNIN_REDIRECT}`}>
+              Log in
+            </a></>
+          }
         </p>
       </main>
-
-      <footer>
-        <a
-          href="https://zeit.co?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by <img src="/zeit.svg" alt="ZEIT Logo" />
-        </a>
-      </footer>
 
       <style jsx>{`
         .container {
@@ -60,25 +79,6 @@ const Home = () => {
           flex: 1;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
           justify-content: center;
           align-items: center;
         }
@@ -113,62 +113,6 @@ const Home = () => {
           line-height: 1.5;
           font-size: 1.5rem;
         }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
       `}</style>
 
       <style jsx global>{`
@@ -187,5 +131,16 @@ const Home = () => {
     </div>
   )
 }
+
+// This should go wherever you're going to need to use the user id
+Home.getInitialProps = async function(ctx) {
+  const { id } = parseCookies(ctx);
+  if (id) {
+    const user = await decodeClientToken(id);
+    return { user };
+  } else {
+    return { }
+  }
+};
 
 export default Home
